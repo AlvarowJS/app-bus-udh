@@ -30,9 +30,10 @@ export const HomeStudentStyle = StyleSheet.create({
     logout: {
         color: 'white',
         fontWeight: 'bold',
-        marginTop: 30,
-        marginLeft: 310,
+        marginTop: 50,
+        right: 10,
+        // marginLeft: 320,
         position: 'absolute',
-    }
-  
+    }    
+    
 });

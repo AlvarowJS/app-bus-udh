@@ -11,3 +11,8 @@ export interface LoginResponse {
     codigo: string;
     avatar?: string;
 }
+export interface LoginDriver {
+    token: string;
+    nombres: string;
+    apellidos: string;
+}

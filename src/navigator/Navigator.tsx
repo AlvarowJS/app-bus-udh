@@ -3,6 +3,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { LoginScreen } from '../screens/LoginScreen';
 import { AuthContext } from '../context/AuthContext';
 import HomeStudent from '../screens/HomeStudent';
+import HomeDriver from '../screens/Driver/HomeDriver';
+import BusesList from '../screens/Driver/BusesList';
+import MapDriver from '../screens/Driver/MapDriver';
 
 const Stack = createStackNavigator();
 
@@ -10,7 +13,7 @@ export const Navigator = () => {
 
   const { status } = useContext(AuthContext)
 
-  console.log(status, "status")
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -18,12 +21,21 @@ export const Navigator = () => {
       }}
     >
       {
-        (status !== 'authenticated')
+        (status !== 'authenticated' && status !== 'authenticated-driver')
           ? (
             <Stack.Screen name="LoginScreen" component={LoginScreen} />
 
           ) : (
-            <Stack.Screen name="HomeStudent" component={HomeStudent} />
+            (status == 'authenticated')
+              ? (
+                <Stack.Screen name="HomeStudent" component={HomeStudent} />
+              ) : (
+                <>
+                  <Stack.Screen name="HomeDriver" component={HomeDriver} />
+                  <Stack.Screen name="BusesList" component={BusesList} />
+                  <Stack.Screen name="MapDriver" component={MapDriver} />
+                </>
+              )
           )
       }
     </Stack.Navigator>

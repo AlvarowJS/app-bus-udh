@@ -40,12 +40,18 @@ export const loginStyles = StyleSheet.create({
         paddingHorizontal: 90,
         marginBottom: 15,
     },
+    login_buttoninfo: {
+        color: 'white',
+        margin: 10,
+        borderRadius: 15
+    },
     google: {
         flexDirection: 'row',
         backgroundColor: 'white',
-        paddingHorizontal: 55,
+        paddingHorizontal: 45,
         paddingVertical: 10,
         alignItems: 'center',
+        gap:5
     },
     aviso: {
         color: 'white',

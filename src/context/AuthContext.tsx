@@ -1,5 +1,5 @@
 import React, { Children, createContext, useEffect, useReducer, useState } from "react";
-import { LoginData, LoginResponse } from "../interfaces/appInterfaces";
+import { LoginData, LoginDriver, LoginResponse } from "../interfaces/appInterfaces";
 import { AuthState, authReducer } from "./authReducer";
 import busApi from "../api/busApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,6 +8,7 @@ type AuthContextProps = {
     errorMessage: string;
     token: string | null;
     user: LoginResponse;
+    userDriver: LoginDriver;
     status: 'checking' | 'authenticated' | 'not-authenticate';
     signUp: () => void;
     signIn: (LoginData: LoginData) => void;
@@ -35,38 +36,67 @@ export const AuthProvider = ({ children }: any) => {
 
     const checkToken = async () => {
         const token = await AsyncStorage.getItem('token')
-        
+
         // No hay token
         if (!token) return dispatch({ type: 'notAuthenticated' })
         // hay token
         const resp = await busApi.get('/auth');
-        if ( resp.status !== 200 ) {
+        if (resp.status !== 200) {
             return dispatch({ type: 'notAuthenticated' });
         }
-        
-        await AsyncStorage.setItem('token', resp.data.token );
-        dispatch({ 
-            type: 'signUp',
-            payload: {
-                token: resp.data.token,
-                user: resp.data
-            }
-        });
 
+        await AsyncStorage.setItem('token', resp.data.token);
 
-    }
-
-    const signIn = async ({ email, password }: LoginData) => {
-        try {
-            const { data } = await busApi.post<LoginResponse>('/login-user', { email, password })
+        if (resp?.data?.table == 'users') {
+            console.log("user ??")
             dispatch({
                 type: 'signUp',
                 payload: {
-                    token: data.token,
-                    user: data,
+                    token: resp.data.token,
+                    user: resp.data
                 }
-            })
-            await AsyncStorage.setItem('token', data.token)
+            });
+        } else {
+            console.log("driver")
+            dispatch({
+                type: 'signUpDriver',
+                payload: {
+                    token: resp.data.token,
+                    user: resp.data
+                }
+            });
+        }
+    }
+
+    const signIn = async ({ email, password }: LoginData) => {
+
+        try {
+            const regex = /@udh\.edu\.pe$/;
+
+            if (!regex.test(email)) {
+                const { data } = await busApi.post<LoginDriver>('/driver/login', { email, password })
+                dispatch({
+                    type: 'signUpDriver',
+                    payload: {
+                        token: data.token,
+                        user: data
+                    }
+                })
+                await AsyncStorage.setItem('token', data.token)
+
+            } else {
+                const { data } = await busApi.post<LoginResponse>('/login-user', { email, password })
+
+                dispatch({
+                    type: 'signUp',
+                    payload: {
+                        token: data.token,
+                        user: data,
+                    }
+                })
+                await AsyncStorage.setItem('token', data.token)
+            }
+
         } catch (error) {
             dispatch({
                 type: 'addError',
@@ -75,7 +105,10 @@ export const AuthProvider = ({ children }: any) => {
         }
     };
     const signUp = () => { };
-    const logOut = () => { };
+    const logOut = async () => {
+        await AsyncStorage.removeItem('token');
+        dispatch({ type: 'logout' })
+    };
     const removeError = () => {
         dispatch({ type: 'removeError' })
     };

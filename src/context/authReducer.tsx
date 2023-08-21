@@ -1,14 +1,15 @@
-import { LoginResponse } from "../interfaces/appInterfaces";
+import { LoginDriver, LoginResponse } from "../interfaces/appInterfaces";
 
 export interface AuthState {
-    status: 'checking' | 'authenticated' | 'not-authenticate';
+    status: 'checking' | 'authenticated' | 'not-authenticate' | 'authenticated-driver';
     token: string | null;
     errorMessage: string;
-    user: LoginResponse | null;
+    user: LoginResponse | null | LoginDriver;
 }
 
 type AuthAction =
     | { type: 'signUp', payload: { token: string, user: LoginResponse } }
+    | { type: 'signUpDriver', payload: { token: string, user: LoginDriver } }
     | { type: 'addError', payload: string }
     | { type: 'removeError' }
     | { type: 'notAuthenticated' }
@@ -34,6 +35,14 @@ export const authReducer = (state: AuthState, action: AuthAction): AuthState => 
                 ...state,
                 errorMessage: '',
                 status: 'authenticated',
+                token: action.payload.token,
+                user: action.payload.user,
+            }
+        case 'signUpDriver':
+            return {
+                ...state,
+                errorMessage: '',
+                status: 'authenticated-driver',
                 token: action.payload.token,
                 user: action.payload.user,
             }
